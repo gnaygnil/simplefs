@@ -1,0 +1,57 @@
+  Simplefs实现了一个最小化的linux文件系统. 
+
+已实现功能:
+  * 文件/目录的新建/删除/读写. 
+  * 实现了符号链接/硬链接.
+  * 文件读写数据支持page cache. 
+
+simplefs layout说明:
+--------------------------------------------------------------------------------------
+|                       |                       |
+| super block (1 block) | inode table (1 block) | data block (n blocks)
+|                       |                       |
+--------------------------------------------------------------------------------------
+
+相关数据结构说明:
+
+simplefs inode存储结构
+struct simplefs_inode {
+        mode_t mode;
+        uint16_t i_nlink;		//添加硬链接计数
+        uint64_t inode_no;
+        uint64_t data_block_number;
+
+        union {
+                uint64_t file_size;
+                uint64_t dir_children_count;
+        };
+};
+
+存储simplefs_inode需要常驻内存中的相关信息
+struct simplefs_inode_info {
+        uint64_t data_block_number;
+        union {
+                uint64_t file_size;
+                uint64_t dir_children_count;
+        };
+        struct inode vfs_inode;
+};
+
+simplefs superblock存储结构
+struct simplefs_super_block {
+        uint64_t version;
+        uint64_t magic;
+        uint64_t block_size;
+        uint64_t inodes_count;
+        int64_t imap;			//添加已使用inode block的map
+        int64_t dmap;			//添加已使用data block的map
+
+        char padding[SIMPLEFS_DEFAULT_BLOCK_SIZE - (6 * sizeof(uint64_t))];
+};
+
+存储simplefs_super_block需要常驻内存中的相关信息
+struct simplefs_sb_info {
+        struct buffer_head *sbh;
+        struct simplefs_super_block *sb;
+        struct mutex simplefs_lock;
+};
