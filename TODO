@@ -1,0 +1,6 @@
+TODO
+
+1. 支持Direct IO;
+2. 支持rename;
+3. 支持mknod\getattr;
+4. 支持文件truncate;
