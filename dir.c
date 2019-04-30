@@ -21,7 +21,7 @@ static int simplefs_readdir(struct file *f, struct dir_context *ctx)
 	int i;
 
 	if (ctx->pos & (sizeof(struct simplefs_dir_record) - 1)) {
-		printk(KERN_ERR "Bad f_pos=%08lx for %s:%08lx\n",
+		pr_err("Bad f_pos=%08lx for %s:%08lx\n",
 				(unsigned long)ctx->pos,
 				dir->i_sb->s_id, dir->i_ino);
 		return -EINVAL;
@@ -103,7 +103,10 @@ static int simplefs_create_inode(struct inode *dir, struct dentry *dentry, umode
 	inode_init_owner(inode, dir, mode);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 	inode->i_blocks = 0;
-	inode->i_mapping->a_ops = &simplefs_aops;
+	if (IS_DAX(inode))
+		inode->i_mapping->a_ops = &simplefs_dax_aops;
+	else
+		inode->i_mapping->a_ops = &simplefs_aops;
 	inode->i_ino = ino;
 	inode->i_size = 0;
 	simplefs_i(inode)->data_block_number = data_block_number;
@@ -118,7 +121,6 @@ static int simplefs_create_inode(struct inode *dir, struct dentry *dentry, umode
 	} else if (S_ISLNK(inode->i_mode)) {
 		inode->i_op = &simplefs_symlink_inops;
 		inode_nohighmem(inode);
-		inode->i_mapping->a_ops = &simplefs_aops;
 		err = page_symlink(inode, symname, strlen(symname) + 1);
 		if (err) {
 			inode_dec_link_count(inode);

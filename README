@@ -1,19 +1,19 @@
-  Simplefs实现了一个最小化的linux文件系统. 
+	Simplefs实现了一个最小化的linux文件系统. 
 
-开发及运行环境:
+开发及测试环境:
 	gcc: 5.4.0 20160609
-	OS: Ubuntu 16.04.6 LTS
-	kernel: 5.1.0-rc2+
+	OS: Ubuntu 16.04.6 LTS server
+	kernel: 5.1.0-rc7
 
 已实现功能:
   * 文件/目录的新建/删除/读写. 
   * 实现了符号链接/硬链接.
-  * 文件读写数据支持page cache. 
+  * 文件读写数据支持page cache / DirectIO. 
 
 simplefs layout说明:
 --------------------------------------------------------------------------------------
 |                       |                       |
-| super block (1 block) | inode table (1 block) | data block (n blocks)
+| super block (1 block) | inode table (1 block) | data block (N blocks)
 |                       |                       |
 --------------------------------------------------------------------------------------
 

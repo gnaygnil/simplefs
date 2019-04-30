@@ -43,17 +43,18 @@ struct inode *simplefs_iget(struct super_block *sb, unsigned long ino)
 		inode->i_size = sinfo->dir_children_count * sizeof(struct simplefs_dir_record);
 		inode->i_op = &simplefs_dir_inops;
 		inode->i_fop = &simplefs_dir_operations;
-		inode->i_mapping->a_ops = &simplefs_aops;
 	} else if (S_ISREG(inode->i_mode)) {
 		sinfo->file_size = inode->i_size = sinode->file_size;
 		inode->i_op = &simplefs_file_inops;
 		inode->i_fop = &simplefs_file_operations;
-		inode->i_mapping->a_ops = &simplefs_aops;
 	} else if (S_ISLNK(inode->i_mode)) {
 		inode->i_op = &simplefs_symlink_inops;
 		inode_nohighmem(inode);
-		inode->i_mapping->a_ops = &simplefs_aops;
 	}
+	if (IS_DAX(inode))
+		inode->i_mapping->a_ops = &simplefs_dax_aops;
+	else
+		inode->i_mapping->a_ops = &simplefs_aops;
 
 	set_nlink(inode, sinode->i_nlink);
 	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);

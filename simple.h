@@ -124,6 +124,7 @@ extern void simplefs_dump_imap(const char *, struct super_block *);
 extern const struct inode_operations simplefs_file_inops;
 extern const struct file_operations simplefs_file_operations;
 extern const struct address_space_operations simplefs_aops;
+extern const struct address_space_operations simplefs_dax_aops;
 
 /* dir.c */
 extern const struct inode_operations simplefs_dir_inops;
