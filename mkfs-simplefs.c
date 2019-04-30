@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	fd = open(argv[1], O_RDWR);
+	fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd == -1) {
 		perror("Error opening the device");
 		return -1;
@@ -170,6 +170,8 @@ int main(int argc, char *argv[])
 
 		ret = 0;
 	} while (0);
+
+	ftruncate(fd, 4096 * 1024);
 
 	close(fd);
 	return ret;
